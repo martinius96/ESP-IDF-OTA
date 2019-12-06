@@ -1,0 +1,18 @@
+{
+    "project_name":       "bootloader",
+    "project_path":       "C:/Users/Martin/16rele/esp-idf/components/bootloader/subproject",
+    "build_dir":          "C:/Users/Martin/16rele/esp-idf/examples/system/ota/native_ota_example/build/bootloader",
+    "config_file":        "C:/Users/Martin/16rele/esp-idf/examples/system/ota/native_ota_example/sdkconfig",
+    "config_defaults":    "",
+    "app_elf":            "bootloader.elf",
+    "app_bin":            "bootloader.bin",
+    "git_revision":       "v4.0-beta2-174-g99fb9a3f7-dirty",
+    "phy_data_partition": "",
+    "monitor_baud" : "115200",
+    "config_environment" : {
+        "COMPONENT_KCONFIGS" : "C:/Users/Martin/16rele/esp-idf/components/efuse/Kconfig;C:/Users/Martin/16rele/esp-idf/components/esp32/Kconfig;C:/Users/Martin/16rele/esp-idf/components/esp_common/Kconfig;C:/Users/Martin/16rele/esp-idf/components/log/Kconfig;C:/Users/Martin/16rele/esp-idf/components/spi_flash/Kconfig",
+        "COMPONENT_KCONFIGS_PROJBUILD" : "C:/Users/Martin/16rele/esp-idf/components/bootloader/Kconfig.projbuild;C:/Users/Martin/16rele/esp-idf/components/esptool_py/Kconfig.projbuild;C:/Users/Martin/16rele/esp-idf/components/partition_table/Kconfig.projbuild"
+    },
+    "build_components" : [ "bootloader", "bootloader_support", "efuse", "esp32", "esp_common", "esp_rom", "esptool_py", "log", "main", "micro-ecc", "partition_table", "soc", "spi_flash", "xtensa", "" ],
+    "build_component_paths" : [ "C:/Users/Martin/16rele/esp-idf/components/bootloader", "C:/Users/Martin/16rele/esp-idf/components/bootloader_support", "C:/Users/Martin/16rele/esp-idf/components/efuse", "C:/Users/Martin/16rele/esp-idf/components/esp32", "C:/Users/Martin/16rele/esp-idf/components/esp_common", "C:/Users/Martin/16rele/esp-idf/components/esp_rom", "C:/Users/Martin/16rele/esp-idf/components/esptool_py", "C:/Users/Martin/16rele/esp-idf/components/log", "C:/Users/Martin/16rele/esp-idf/components/bootloader/subproject/main", "C:/Users/Martin/16rele/esp-idf/components/bootloader/subproject/components/micro-ecc", "C:/Users/Martin/16rele/esp-idf/components/partition_table", "C:/Users/Martin/16rele/esp-idf/components/soc", "C:/Users/Martin/16rele/esp-idf/components/spi_flash", "C:/Users/Martin/16rele/esp-idf/components/xtensa", "" ]
+}
