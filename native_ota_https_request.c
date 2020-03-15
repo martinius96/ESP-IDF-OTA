@@ -503,5 +503,5 @@ void app_main()
     ESP_ERROR_CHECK(example_connect());
 
     xTaskCreate(&ota_example_task, "ota_example_task", 8192, NULL, 5, NULL);
-     xTaskCreate(&https_get_task, "https_get_task", 8192, NULL, 5, NULL);
+    xTaskCreate(&https_get_task, "https_get_task", 8192, NULL, 2, NULL);
 }
