@@ -60,10 +60,8 @@ static const char *REQUEST2 = "GET " WEB_URL2 " HTTP/1.0\r\n"
 
 #define BUFFSIZE 1024
 #define HASH_LEN 32 /* SHA-256 digest length */
-//#define GPIO_OUTPUT_IO_23    23
-//#define GPIO_OUTPUT_PIN_SEL  ((1ULL<<GPIO_OUTPUT_IO_23)
-//#define ESP_INTR_FLAG_DEFAULT 0
-
+#define GPIO_OUTPUT_IO_23    23
+    
 //static const char *TAG = "native_ota_example";
 /*an ota data write buffer ready to write to the flash*/
 static char ota_write_data[BUFFSIZE + 1] = { 0 };
@@ -415,7 +413,7 @@ static void https_get_task(void *pvParameters)
             }
                 char* automat = "Automat";
                 if(strcmp (automat,buf)==0){
-                 printf("Automaticky rezim inteligentneho rele \n");
+                  ESP_LOGI(TAG3, "Automaticky rezim inteligentneho rele");
                 }
             if(ret == 0)
             {
@@ -619,16 +617,18 @@ static void https_get_task2(void *pvParameters)
                 char* zapnutie = "ZAP";
                 char* vypnutie = "VYP";
                 if(strcmp (zapnutie,buf)==0){
-                 printf("Zapnutie rele \n");
+                  ESP_LOGI(TAG3, "Zapnutie rele ");
+                  gpio_set_level(GPIO_OUTPUT_IO_23, 1);
                 }else if(strcmp (vypnutie,buf)==0){
-                 printf("Vypnutie rele \n");
+                  ESP_LOGI(TAG3, "Vypnutie rele ");
+                  gpio_set_level(GPIO_OUTPUT_IO_23, 0);
                 }
             if(ret == 0)
             {
                 ESP_LOGI(TAG3, "connection closed");
                 break;
             }
-
+                              
             len = ret;
             ESP_LOGD(TAG3, "%d bytes read", len);
             /* Print response directly to stdout as it is read */
@@ -664,6 +664,9 @@ static void https_get_task2(void *pvParameters)
 
 void app_main()
 {
+                 gpio_pad_select_gpio(GPIO_OUTPUT_IO_23);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(GPIO_OUTPUT_IO_23, GPIO_MODE_OUTPUT);
     uint8_t sha_256[HASH_LEN] = { 0 };
     esp_partition_t partition;
 
