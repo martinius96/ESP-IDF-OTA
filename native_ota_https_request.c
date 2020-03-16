@@ -45,7 +45,7 @@
 #define WEB_URL2 "https://esp32.sk/values/stav.txt"             
 #define WEB_URL3 "https://esp32.sk/values/reset.txt"  
 #define WEB_URL4 "https://esp32.sk/esp32/potvrdreset.php"  
-bool reset_priznak = false;
+char* reset_priznak = "ABC";
 
 static const char *TAG = "native_ota";
 static const char *TAG2 = "https_request_send_datas";
@@ -75,8 +75,7 @@ static const char *REQUEST4 = "GET " WEB_URL4 " HTTP/1.0\r\n"
 
 #define BUFFSIZE 1024
 #define HASH_LEN 32 /* SHA-256 digest length */
-#define GPIO_OUTPUT_IO_23    23
-    
+#define GPIO_OUTPUT_IO_23    23   
 //static const char *TAG = "native_ota_example";
 /*an ota data write buffer ready to write to the flash*/
 static char ota_write_data[BUFFSIZE + 1] = { 0 };
@@ -838,7 +837,7 @@ static void https_get_task3(void *pvParameters)
                 char* priznak = "RST";
                 if(strcmp (priznak,buf)==0){
                 ESP_LOGI(TAG4, "Reset bol vyziadany");
-                  reset_priznak = true;
+                  strcpy(reset_priznak, "RST");
                 }
             if(ret == 0)
             {
@@ -1074,7 +1073,6 @@ static void https_get_task4(void *pvParameters)
         }
         ESP_LOGI(TAG5, "Starting again!");
     }
-
 }
 
 
@@ -1088,9 +1086,10 @@ static void https_get_task4(void *pvParameters)
 
 void app_main()
 {
-                 gpio_pad_select_gpio(GPIO_OUTPUT_IO_23);
+    gpio_pad_select_gpio(GPIO_OUTPUT_IO_23);
     /* Set the GPIO as a push/pull output */
     gpio_set_direction(GPIO_OUTPUT_IO_23, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_OUTPUT_IO_23, 0); // pociatocne nastavenie 
     uint8_t sha_256[HASH_LEN] = { 0 };
     esp_partition_t partition;
 
@@ -1147,12 +1146,9 @@ void app_main()
      * examples/protocols/README.md for more information about this function.
      */
     ESP_ERROR_CHECK(example_connect());
-
     xTaskCreate(&ota_example_task, "ota_example_task", 8192, NULL, 5, NULL);
     xTaskCreate(&https_get_task, "https_get_task", 8192, NULL, 4, NULL);
     xTaskCreate(&https_get_task2, "https_get_task2", 8192, NULL, 3, NULL);
     xTaskCreate(&https_get_task3, "https_get_task3", 8192, NULL, 2, NULL);
-    if(reset_priznak==true){
-      xTaskCreate(&https_get_task4, "https_get_task4", 8192, NULL, 2, NULL);
-    }
+    xTaskCreate(&https_get_task4, "https_get_task4", 8192, NULL, 2, NULL);
 }
