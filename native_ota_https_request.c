@@ -5,7 +5,6 @@
    Unless required by applicable law or agreed to in writing, this
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
-  //15. Mar - HTTPS, OTA --> 2 tasky, otagovany vypis
 */
 #include <string.h>
 #include "freertos/FreeRTOS.h"
@@ -43,18 +42,27 @@
 #define WEB_SERVER "esp32.sk"
 #define WEB_PORT "443"
 #define WEB_URL "https://esp32.sk/esp32/zapisdata.php"
+#define WEB_URL2 "https://esp32.sk/values/stav.txt"
 
 static const char *TAG = "native_ota";
-static const char *TAG2 = "https_request";
+static const char *TAG2 = "https_request_send";
+static const char *TAG3 = "https_request_read_state";
 
 static const char *REQUEST = "GET " WEB_URL " HTTP/1.0\r\n"
     "Host: "WEB_SERVER"\r\n"
     "User-Agent: esp-idf/1.0 esp32\r\n"
     "\r\n";
 
+static const char *REQUEST2 = "GET " WEB_URL2 " HTTP/1.0\r\n"
+    "Host: "WEB_SERVER"\r\n"
+    "User-Agent: esp-idf/1.0 esp32\r\n"
+    "\r\n";
+
 #define BUFFSIZE 1024
 #define HASH_LEN 32 /* SHA-256 digest length */
-
+//#define GPIO_OUTPUT_IO_23    23
+//#define GPIO_OUTPUT_PIN_SEL  ((1ULL<<GPIO_OUTPUT_IO_23)
+//#define ESP_INTR_FLAG_DEFAULT 0
 
 //static const char *TAG = "native_ota_example";
 /*an ota data write buffer ready to write to the flash*/
@@ -405,7 +413,10 @@ static void https_get_task(void *pvParameters)
                 ESP_LOGE(TAG2, "mbedtls_ssl_read returned -0x%x", -ret);
                 break;
             }
-
+                char* automat = "Automat";
+                if(strcmp (automat,buf)==0){
+                 printf("Automaticky rezim inteligentneho rele \n");
+                }
             if(ret == 0)
             {
                 ESP_LOGI(TAG2, "connection closed");
@@ -442,6 +453,212 @@ static void https_get_task(void *pvParameters)
             vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
         ESP_LOGI(TAG2, "Starting again!");
+    }
+}
+
+
+
+
+
+static void https_get_task2(void *pvParameters)
+{
+    char buf[512];
+    int ret, flags, len;
+
+    mbedtls_entropy_context entropy;
+    mbedtls_ctr_drbg_context ctr_drbg;
+    mbedtls_ssl_context ssl;
+    mbedtls_x509_crt cacert;
+    mbedtls_ssl_config conf;
+    mbedtls_net_context server_fd;
+
+    mbedtls_ssl_init(&ssl);
+    mbedtls_x509_crt_init(&cacert);
+    mbedtls_ctr_drbg_init(&ctr_drbg);
+    ESP_LOGI(TAG3, "Seeding the random number generator");
+
+    mbedtls_ssl_config_init(&conf);
+
+    mbedtls_entropy_init(&entropy);
+    if((ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy,
+                                    NULL, 0)) != 0)
+    {
+        ESP_LOGE(TAG3, "mbedtls_ctr_drbg_seed returned %d", ret);
+        abort();
+    }
+
+    ESP_LOGI(TAG3, "Loading the CA root certificate...");
+
+    ret = mbedtls_x509_crt_parse(&cacert, server_cert_pem_start,
+                                 server_cert_pem_end-server_cert_pem_start);
+
+    if(ret < 0)
+    {
+        ESP_LOGE(TAG3, "mbedtls_x509_crt_parse returned -0x%x\n\n", -ret);
+        abort();
+    }
+
+    ESP_LOGI(TAG3, "Setting hostname for TLS session...");
+
+     /* Hostname set here should match CN in server certificate */
+    if((ret = mbedtls_ssl_set_hostname(&ssl, WEB_SERVER)) != 0)
+    {
+        ESP_LOGE(TAG3, "mbedtls_ssl_set_hostname returned -0x%x", -ret);
+        abort();
+    }
+
+    ESP_LOGI(TAG3, "Setting up the SSL/TLS structure...");
+
+    if((ret = mbedtls_ssl_config_defaults(&conf,
+                                          MBEDTLS_SSL_IS_CLIENT,
+                                          MBEDTLS_SSL_TRANSPORT_STREAM,
+                                          MBEDTLS_SSL_PRESET_DEFAULT)) != 0)
+    {
+        ESP_LOGE(TAG3, "mbedtls_ssl_config_defaults returned %d", ret);
+        goto exit;
+    }
+
+    /* MBEDTLS_SSL_VERIFY_OPTIONAL is bad for security, in this example it will print
+       a warning if CA verification fails but it will continue to connect.
+
+       You should consider using MBEDTLS_SSL_VERIFY_REQUIRED in your own code.
+    */
+    mbedtls_ssl_conf_authmode(&conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
+    mbedtls_ssl_conf_ca_chain(&conf, &cacert, NULL);
+    mbedtls_ssl_conf_rng(&conf, mbedtls_ctr_drbg_random, &ctr_drbg);
+#ifdef CONFIG_MBEDTLS_DEBUG
+    mbedtls_esp_enable_debug_log(&conf, CONFIG_MBEDTLS_DEBUG_LEVEL);
+#endif
+
+    if ((ret = mbedtls_ssl_setup(&ssl, &conf)) != 0)
+    {
+        ESP_LOGE(TAG3, "mbedtls_ssl_setup returned -0x%x\n\n", -ret);
+        goto exit;
+    }
+
+    while(1) {
+        mbedtls_net_init(&server_fd);
+
+        ESP_LOGI(TAG3, "Connecting to %s:%s...", WEB_SERVER, WEB_PORT);
+
+        if ((ret = mbedtls_net_connect(&server_fd, WEB_SERVER,
+                                      WEB_PORT, MBEDTLS_NET_PROTO_TCP)) != 0)
+        {
+            ESP_LOGE(TAG3, "mbedtls_net_connect returned -%x", -ret);
+            goto exit;
+        }
+
+        ESP_LOGI(TAG3, "Connected.");
+
+        mbedtls_ssl_set_bio(&ssl, &server_fd, mbedtls_net_send, mbedtls_net_recv, NULL);
+
+        ESP_LOGI(TAG3, "Performing the SSL/TLS handshake...");
+
+        while ((ret = mbedtls_ssl_handshake(&ssl)) != 0)
+        {
+            if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE)
+            {
+                ESP_LOGE(TAG3, "mbedtls_ssl_handshake returned -0x%x", -ret);
+                goto exit;
+            }
+        }
+
+        ESP_LOGI(TAG3, "Verifying peer X.509 certificate...");
+
+        if ((flags = mbedtls_ssl_get_verify_result(&ssl)) != 0)
+        {
+            /* In real life, we probably want to close connection if ret != 0 */
+            ESP_LOGW(TAG3, "Failed to verify peer certificate!");
+            bzero(buf, sizeof(buf));
+            mbedtls_x509_crt_verify_info(buf, sizeof(buf), "  ! ", flags);
+            ESP_LOGW(TAG3, "verification info: %s", buf);
+        }
+        else {
+            ESP_LOGI(TAG3, "Certificate verified.");
+        }
+
+        ESP_LOGI(TAG3, "Cipher suite is %s", mbedtls_ssl_get_ciphersuite(&ssl));
+
+        ESP_LOGI(TAG3, "Writing HTTP request...");
+
+        size_t written_bytes = 0;
+        do {
+            ret = mbedtls_ssl_write(&ssl,
+                                    (const unsigned char *)REQUEST2 + written_bytes,
+                                    strlen(REQUEST2) - written_bytes);
+            if (ret >= 0) {
+                ESP_LOGI(TAG3, "%d bytes written", ret);
+                written_bytes += ret;
+            } else if (ret != MBEDTLS_ERR_SSL_WANT_WRITE && ret != MBEDTLS_ERR_SSL_WANT_READ) {
+                ESP_LOGE(TAG3, "mbedtls_ssl_write returned -0x%x", -ret);
+                goto exit;
+            }
+        } while(written_bytes < strlen(REQUEST2));
+
+        ESP_LOGI(TAG3, "Reading HTTP response...");
+
+        do
+        {
+            len = sizeof(buf) - 1;
+            bzero(buf, sizeof(buf));
+            ret = mbedtls_ssl_read(&ssl, (unsigned char *)buf, len);
+
+            if(ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE)
+                continue;
+
+            if(ret == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY) {
+                ret = 0;
+                break;
+            }
+
+            if(ret < 0)
+            {
+                ESP_LOGE(TAG3, "mbedtls_ssl_read returned -0x%x", -ret);
+                break;
+            }
+                char* zapnutie = "ZAP";
+                char* vypnutie = "VYP";
+                if(strcmp (zapnutie,buf)==0){
+                 printf("Zapnutie rele \n");
+                }else if(strcmp (vypnutie,buf)==0){
+                 printf("Vypnutie rele \n");
+                }
+            if(ret == 0)
+            {
+                ESP_LOGI(TAG3, "connection closed");
+                break;
+            }
+
+            len = ret;
+            ESP_LOGD(TAG3, "%d bytes read", len);
+            /* Print response directly to stdout as it is read */
+            for(int i = 0; i < len; i++) {
+                putchar(buf[i]);
+            }
+        } while(1);
+
+        mbedtls_ssl_close_notify(&ssl);
+
+    exit:
+        mbedtls_ssl_session_reset(&ssl);
+        mbedtls_net_free(&server_fd);
+
+        if(ret != 0)
+        {
+            mbedtls_strerror(ret, buf, 100);
+            ESP_LOGE(TAG3, "Last error was: -0x%x - %s", -ret, buf);
+        }
+
+        putchar('\n'); // JSON output doesn't have a newline at end
+
+        static int request_count;
+        ESP_LOGI(TAG3, "Completed %d requests", ++request_count);
+
+        for(int countdown = 15; countdown >= 0; countdown--) {
+            ESP_LOGI(TAG3, "%d...", countdown);
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+        }
+        ESP_LOGI(TAG3, "Starting again!");
     }
 }
 
@@ -505,5 +722,6 @@ void app_main()
     ESP_ERROR_CHECK(example_connect());
 
     xTaskCreate(&ota_example_task, "ota_example_task", 8192, NULL, 5, NULL);
-    xTaskCreate(&https_get_task, "https_get_task", 8192, NULL, 2, NULL);
+    xTaskCreate(&https_get_task, "https_get_task", 8192, NULL, 4, NULL);
+    xTaskCreate(&https_get_task2, "https_get_task2", 8192, NULL, 2, NULL);
 }
