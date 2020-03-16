@@ -51,6 +51,7 @@ static const char *TAG3 = "https_request_read_ZAP_VYP";
 static const char *TAG4 = "https_request_read_reset";
 static const char *TAG5 = "https_request_make_reset";
 
+int a = 0;
 static const char *REQUEST = "GET " WEB_URL " HTTP/1.0\r\n"
     "Host: "WEB_SERVER"\r\n"
     "User-Agent: esp-idf/1.0 esp32\r\n"
@@ -798,6 +799,7 @@ static void https_get_task3(void *pvParameters)
         ESP_LOGI(TAG4, "Writing HTTP request...");
 
         size_t written_bytes = 0;
+       if(a==0){
         do {
             ret = mbedtls_ssl_write(&ssl,
                                     (const unsigned char *)REQUEST3 + written_bytes,
@@ -810,6 +812,24 @@ static void https_get_task3(void *pvParameters)
                 goto exit;
             }
         } while(written_bytes < strlen(REQUEST3));
+        }else if (a==1){
+        a = 2;
+           do {
+            ret = mbedtls_ssl_write(&ssl,
+                                    (const unsigned char *)REQUEST4 + written_bytes,
+                                    strlen(REQUEST4) - written_bytes);
+            if (ret >= 0) {
+                ESP_LOGI(TAG4, "%d bytes written", ret);
+                written_bytes += ret;
+            } else if (ret != MBEDTLS_ERR_SSL_WANT_WRITE && ret != MBEDTLS_ERR_SSL_WANT_READ) {
+                ESP_LOGE(TAG4, "mbedtls_ssl_write returned -0x%x", -ret);
+                goto exit;
+            }
+        } while(written_bytes < strlen(REQUEST4));
+        }else if(a==2){
+            ESP_LOGI(TAG5, "RESTARTUJEM....");
+            esp_restart();
+        }
 
         ESP_LOGI(TAG4, "Reading HTTP response...");
 
@@ -835,6 +855,7 @@ static void https_get_task3(void *pvParameters)
                 char* priznak = "RST";
                 if(strcmp (priznak,buf)==0){
                 ESP_LOGI(TAG4, "Reset bol vyziadany");
+                a = 1;
                 }
             if(ret == 0)
             {
@@ -1035,7 +1056,6 @@ static void https_get_task4(void *pvParameters)
             if(ret == 0)
             {
                 ESP_LOGI(TAG5, "connection closed");
-                esp_restart();
                 break;
             }
                               
@@ -1147,6 +1167,6 @@ void app_main()
     xTaskCreate(&https_get_task, "https_get_task", 8192, NULL, 4, NULL);
     xTaskCreate(&https_get_task2, "https_get_task2", 8192, NULL, 3, NULL);
     xTaskCreate(&https_get_task3, "https_get_task3", 8192, NULL, 2, NULL);
-    xTaskCreate(&https_get_task4, "https_get_task4", 8192, NULL, 2, NULL); 
+   // xTaskCreate(&https_get_task4, "https_get_task4", 8192, NULL, 2, NULL); 
       
 }
