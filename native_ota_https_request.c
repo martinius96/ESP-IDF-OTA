@@ -45,8 +45,6 @@
 #define WEB_URL2 "https://esp32.sk/values/stav.txt"             
 #define WEB_URL3 "https://esp32.sk/values/reset.txt"  
 #define WEB_URL4 "https://esp32.sk/esp32/potvrdreset.php"  
-char* reset_priznak = "ABC";
-
 static const char *TAG = "native_ota";
 static const char *TAG2 = "https_request_send_datas";
 static const char *TAG3 = "https_request_read_ZAP_VYP";
@@ -837,7 +835,6 @@ static void https_get_task3(void *pvParameters)
                 char* priznak = "RST";
                 if(strcmp (priznak,buf)==0){
                 ESP_LOGI(TAG4, "Reset bol vyziadany");
-                  strcpy(reset_priznak, "RST");
                 }
             if(ret == 0)
             {
@@ -1150,5 +1147,6 @@ void app_main()
     xTaskCreate(&https_get_task, "https_get_task", 8192, NULL, 4, NULL);
     xTaskCreate(&https_get_task2, "https_get_task2", 8192, NULL, 3, NULL);
     xTaskCreate(&https_get_task3, "https_get_task3", 8192, NULL, 2, NULL);
-    xTaskCreate(&https_get_task4, "https_get_task4", 8192, NULL, 2, NULL);
+    xTaskCreate(&https_get_task4, "https_get_task4", 8192, NULL, 2, NULL); 
+      
 }
