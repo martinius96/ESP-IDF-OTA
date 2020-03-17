@@ -678,7 +678,7 @@ static void https_get_task2(void *pvParameters)
 
 
 static void https_get_task3(void *pvParameters)
-{
+{          
     char buf[512];
     int ret, flags, len;
 
