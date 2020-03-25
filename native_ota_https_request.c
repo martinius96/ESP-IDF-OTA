@@ -6,7 +6,9 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
+#include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
@@ -37,11 +39,11 @@
 #include "mbedtls/error.h"
 #include "mbedtls/certs.h"
 
-
+uint8_t temprature_sens_read(); 
+uint32_t hall_sens_read();
 /* Constants that aren't configurable in menuconfig */
 #define WEB_SERVER "esp32.sk"
 #define WEB_PORT "443"
-#define WEB_URL "https://esp32.sk/esp32/zapisdata.php"
 #define WEB_URL2 "https://esp32.sk/values/stav.txt"             
 #define WEB_URL3 "https://esp32.sk/values/reset.txt"  
 #define WEB_URL4 "https://esp32.sk/esp32/potvrdreset.php"  
@@ -52,10 +54,6 @@ static const char *TAG4 = "https_request_read_reset";
 static const char *TAG5 = "https_request_make_reset";
 
 int a = 0;
-static const char *REQUEST = "GET " WEB_URL " HTTP/1.0\r\n"
-    "Host: "WEB_SERVER"\r\n"
-    "User-Agent: esp-idf/1.0 esp32\r\n"
-    "\r\n";
 
 static const char *REQUEST2 = "GET " WEB_URL2 " HTTP/1.0\r\n"
     "Host: "WEB_SERVER"\r\n"
@@ -272,7 +270,16 @@ static void https_get_task(void *pvParameters)
 {
     char buf[512];
     int ret, flags, len;
-
+    int cpu_temp = temprature_sens_read();
+    int hall_value = hall_sens_read();
+     char buffer [400];
+     sprintf (buffer, "https://esp32.sk/esp32/zapisdata.php?teplota=%d&hall=%d", cpu_temp, hall_value);
+    char REQUEST [1000];
+    sprintf (REQUEST, "GET %s HTTP/1.0\r\nHost: "WEB_SERVER"\r\nUser-Agent: esp-idf/1.0 esp32\r\n\r\n", buffer);
+/* char *REQUEST = "GET "WEB_URL" HTTP/1.0\r\n"
+    "Host: "WEB_SERVER"\r\n"
+    "User-Agent: esp-idf/1.0 esp32\r\n"
+    "\r\n";     */
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
     mbedtls_ssl_context ssl;
@@ -357,7 +364,6 @@ static void https_get_task(void *pvParameters)
         }
 
         ESP_LOGI(TAG2, "Connected.");
-
         mbedtls_ssl_set_bio(&ssl, &server_fd, mbedtls_net_send, mbedtls_net_recv, NULL);
 
         ESP_LOGI(TAG2, "Performing the SSL/TLS handshake...");
