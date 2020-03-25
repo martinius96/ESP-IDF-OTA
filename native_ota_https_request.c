@@ -272,8 +272,12 @@ static void https_get_task(void *pvParameters)
     int ret, flags, len;
     int cpu_temp = temprature_sens_read();
     int hall_value = hall_sens_read();
-     char buffer [400];
-     sprintf (buffer, "https://esp32.sk/esp32/zapisdata.php?teplota=%d&hall=%d", cpu_temp, hall_value);
+  //  wifi_ap_record_t ap_info;
+ //   memset(ap_info, 0, sizeof(ap_info));
+ //   int rssi_value = ap_info.rssi;
+    char buffer [400];
+    sprintf (buffer, "https://esp32.sk/esp32/zapisdata.php?teplota=%d&hall=%d", cpu_temp, hall_value);
+  //  sprintf (buffer, "https://esp32.sk/esp32/zapisdata.php?teplota=%d&hall=%d&signal=%d", cpu_temp, hall_value, rssi_value);
     char REQUEST [1000];
     sprintf (REQUEST, "GET %s HTTP/1.0\r\nHost: "WEB_SERVER"\r\nUser-Agent: esp-idf/1.0 esp32\r\n\r\n", buffer);
 /* char *REQUEST = "GET "WEB_URL" HTTP/1.0\r\n"
