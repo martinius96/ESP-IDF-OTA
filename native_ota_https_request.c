@@ -1,7 +1,5 @@
 /* OTA example
-
    This example code is in the Public Domain (or CC0 licensed, at your option.)
-
    Unless required by applicable law or agreed to in writing, this
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
@@ -9,6 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h> // for the macros
+#include <stdint.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
@@ -272,18 +272,13 @@ static void https_get_task(void *pvParameters)
     int ret, flags, len;
     int cpu_temp = temprature_sens_read();
     int hall_value = hall_sens_read();
-  //  wifi_ap_record_t ap_info;
- //   memset(ap_info, 0, sizeof(ap_info));
- //   int rssi_value = ap_info.rssi;
-    char buffer [400];
-    sprintf (buffer, "https://esp32.sk/esp32/zapisdata.php?teplota=%d&hall=%d", cpu_temp, hall_value);
-  //  sprintf (buffer, "https://esp32.sk/esp32/zapisdata.php?teplota=%d&hall=%d&signal=%d", cpu_temp, hall_value, rssi_value);
+ // DEPRECATED
+  /*  wifi_ap_record_t ap_info[100];
+    memset(ap_info, 0, sizeof(ap_info));
+    int8_t rssi_value = ap_info->rssi;
+    printf("A = %" PRIi8,rssi_value);  */
     char REQUEST [1000];
-    sprintf (REQUEST, "GET %s HTTP/1.0\r\nHost: "WEB_SERVER"\r\nUser-Agent: esp-idf/1.0 esp32\r\n\r\n", buffer);
-/* char *REQUEST = "GET "WEB_URL" HTTP/1.0\r\n"
-    "Host: "WEB_SERVER"\r\n"
-    "User-Agent: esp-idf/1.0 esp32\r\n"
-    "\r\n";     */
+    sprintf (REQUEST, "GET https://esp32.sk/esp32/zapisdata.php?teplota=%d&hall=%d HTTP/1.0\r\nHost: "WEB_SERVER"\r\nUser-Agent: esp-idf/1.0 esp32\r\n\r\n", cpu_temp, hall_value);
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
     mbedtls_ssl_context ssl;
@@ -339,7 +334,6 @@ static void https_get_task(void *pvParameters)
 
     /* MBEDTLS_SSL_VERIFY_OPTIONAL is bad for security, in this example it will print
        a warning if CA verification fails but it will continue to connect.
-
        You should consider using MBEDTLS_SSL_VERIFY_REQUIRED in your own code.
     */
     mbedtls_ssl_conf_authmode(&conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
@@ -541,7 +535,6 @@ static void https_get_task2(void *pvParameters)
 
     /* MBEDTLS_SSL_VERIFY_OPTIONAL is bad for security, in this example it will print
        a warning if CA verification fails but it will continue to connect.
-
        You should consider using MBEDTLS_SSL_VERIFY_REQUIRED in your own code.
     */
     mbedtls_ssl_conf_authmode(&conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
@@ -747,7 +740,6 @@ static void https_get_task3(void *pvParameters)
 
     /* MBEDTLS_SSL_VERIFY_OPTIONAL is bad for security, in this example it will print
        a warning if CA verification fails but it will continue to connect.
-
        You should consider using MBEDTLS_SSL_VERIFY_REQUIRED in your own code.
     */
     mbedtls_ssl_conf_authmode(&conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
