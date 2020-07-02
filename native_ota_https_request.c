@@ -278,7 +278,9 @@ static void https_get_task(void *pvParameters)
     int8_t rssi_value = ap_info->rssi;
     printf("A = %" PRIi8,rssi_value);  */
     char REQUEST [1000];
-    sprintf (REQUEST, "GET https://esp32.sk/esp32/zapisdata.php?teplota=%d&hall=%d HTTP/1.0\r\nHost: "WEB_SERVER"\r\nUser-Agent: esp-idf/1.0 esp32\r\n\r\n", cpu_temp, hall_value);
+    char values [150];
+    sprintf (values, "teplota=%d&hall=%d", cpu_temp, , hall_value);
+    sprintf (REQUEST, "POST https://esp32.sk/esp32/zapisdata.php HTTP/1.0\r\nHost: "WEB_SERVER"\r\nUser-Agent: ESP32\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length:%d\r\n\r\n%s\r\n",strlen(values),values);
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
     mbedtls_ssl_context ssl;
