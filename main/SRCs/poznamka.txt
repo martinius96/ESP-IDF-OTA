@@ -1,0 +1,7 @@
+Len drobna zmena dodanim {} {} na miesta, kde prekladac vyhlasoval varovania a skoncil preklad
+(zrejme je prekladac pre ESP nastaveny velmi striktne, urcite by sa to niekde dalo nastavit aby bol 
+aj menej striktny ... neskusal som to miesto najast.
+
+Ale tie varovania vyhadzuje aj klasicky gcc prekladac na windos platforme pri preklade v tavre:
+
+gcc -Wall -c bme280.c

@@ -1,0 +1,90 @@
+menu "Example Configuration"
+
+    config EXAMPLE_FIRMWARE_UPG_URL
+        string "Firmware Upgrade URL"
+        default "https://192.168.2.106:8070/hello-world.bin"
+        help
+            URL of server which hosts the firmware image.
+
+    config EXAMPLE_GPIO_DIAGNOSTIC
+        int "Number of the GPIO input for diagnostic"
+        range 0 39
+        default 4
+        help
+            Used to demonstrate how a rollback works.
+            The selected GPIO will be configured as an input with internal pull-up enabled.
+            To trigger a rollback, this GPIO must be pulled low while the message
+            `Diagnostics (5 sec)...` which will be on first boot.
+            If GPIO is not pulled low then the operable of the app will be confirmed.
+
+endmenu
+
+menu "Example BME280 Configuration"
+
+    menu "I2C Master"
+        config I2C_MASTER_SCL
+            int "SCL GPIO Num"
+            default 22
+            help
+                GPIO number for I2C Master clock line.
+
+        config I2C_MASTER_SDA
+            int "SDA GPIO Num"
+            default 21
+            help
+                GPIO number for I2C Master data line.
+
+        config I2C_MASTER_FREQUENCY
+            int "Master Frequency"
+            default 100000
+            help
+                I2C Speed of Master device.
+    endmenu
+    
+    menu "BME280 Sensor"
+        choice BME280_ADDRESS
+            prompt "BME280 I2C Address"
+            default BME_I2C_ADDRESS_HIGH
+            help
+                Hardware address of BH1750, which is 2 types, and determined by ADDR terminal.
+
+            config BME_I2C_ADDRESS_LOW
+                bool "BME280 (0x77) - 6 PIN + GND SDO"
+                help
+                    I2C Address of BH1750 Sensor according to your schemetic configuration.
+
+            config BME_I2C_ADDRESS_HIGH
+                bool "BME280 (0x76) - 4 PIN - ORIG. ADDR"
+                help
+                    I2C Address of BME280 Sensor according to your schemetic configuration.
+        endchoice
+
+        config BME280_ADDR
+            hex
+            default (0x76) if BME_I2C_ADDRESS_HIGH
+            default (0x77) if BME_I2C_ADDRESS_LOW
+
+        choice BME280_MODE
+            prompt "BME280 Operation Mode"
+            default BME280_NORMAL_MODE
+            help
+                Operation Mode of BH1750.
+                Different mode means different resolution and measurement time.
+            config BME280_NORMAL_MODE
+                bool "Normal Mode"
+                help
+                    Resolution is 1lx, measurement time is typically 120ms.
+            config BME280_FORCED_MODE
+                bool "Forced Mode"
+                help
+                    Resolution is 0.5lx, measurement time is typically 120ms.
+        endchoice
+
+        config BME280_OPMODE
+            hex
+            default 0x03 if BME280_NORMAL_MODE
+            default 0x01 if BME280_FORCED_MODE
+
+    endmenu
+
+endmenu
