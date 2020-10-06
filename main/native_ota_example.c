@@ -393,52 +393,6 @@ static bool diagnostic(void)
 }
 void https_get_task(void *pvParameters)
 {
-
-//NORMAL MODE
-#if defined CONFIG_BME280_OPMODE && CONFIG_BME280_OPMODE == 0x03
-struct bme280_t bme280 = {
-		.bus_write = BME280_I2C_bus_write,
-		.bus_read = BME280_I2C_bus_read,
-		.dev_addr = BME280_PHY_ADDRESS,
-		.delay_msec = BME280_delay_msek
-	};
-
-	s32 com_rslt;
-	s32 v_uncomp_pressure_s32;
-	s32 v_uncomp_temperature_s32;
-	s32 v_uncomp_humidity_s32;
-
-	com_rslt = bme280_init(&bme280);
-
-	com_rslt += bme280_set_oversamp_pressure(BME280_OVERSAMP_16X);
-	com_rslt += bme280_set_oversamp_temperature(BME280_OVERSAMP_2X);
-	com_rslt += bme280_set_oversamp_humidity(BME280_OVERSAMP_1X);
-
-	com_rslt += bme280_set_standby_durn(BME280_STANDBY_TIME_1_MS);
-	com_rslt += bme280_set_filter(BME280_FILTER_COEFF_16);
-
-	com_rslt += bme280_set_power_mode(BME280_NORMAL_MODE);
-	if (com_rslt == SUCCESS) {
-		while(true) {   
-			vTaskDelay(40/portTICK_PERIOD_MS);
-
-			com_rslt = bme280_read_uncomp_pressure_temperature_humidity(
-				&v_uncomp_pressure_s32, &v_uncomp_temperature_s32, &v_uncomp_humidity_s32);
-
-			if (com_rslt == SUCCESS) {
-      /*DOPLNENY ODHAD NADM. VYSKY, PREPOCET TLAKU NA HLADINU MORA, VZORCE Z: http://volthauslab.com/datasheets/Arduino/Libraries/Adafruit_BMP085/Adafruit_BMP085.cpp
-      2020-MAY-04, MCH*/ 
-      altitude = 44330 * (1.0 - pow(bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100 / 1013.25, 0.1903));
-      pressure_sea = (bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100) / pow(1 - ((0.0065 * altitude) / (bme280_compensate_temperature_double(v_uncomp_temperature_s32) + (0.0065 * altitude) + 273.15)), 5.257);
-      pressure_raw = bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100;
-      temp_bme = bme280_compensate_temperature_double(v_uncomp_temperature_s32);
-      humidity_bme = bme280_compensate_humidity_double(v_uncomp_humidity_s32);
-      ESP_LOGI(TAG_BME280, "%.2f degC / %.3f hPa / %.3f %% / %.3f m / %.3f hPa",
-			bme280_compensate_temperature_double(v_uncomp_temperature_s32),
-			bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100, // Pa -> hPa
-			bme280_compensate_humidity_double(v_uncomp_humidity_s32),
-      altitude,
-      pressure_sea); 
        char buf[512];
     int ret, flags, len;
     int cpu_temp = temprature_sens_read();
@@ -647,274 +601,6 @@ struct bme280_t bme280 = {
         }
         ESP_LOGI(TAG2, "Starting again!");
     }
-      break;        	         
-			} else {
-				ESP_LOGE(TAG_BME280, "measure error. code: %d", com_rslt);
-			}
-		}
-	} else {
-		ESP_LOGE(TAG_BME280, "init or setting error. code: %d", com_rslt);
-	}
-#endif  
-
-
-//FORCED MODE
-#if defined CONFIG_BME280_OPMODE && CONFIG_BME280_OPMODE == 0x01
-struct bme280_t bme280 = {
-		.bus_write = BME280_I2C_bus_write,
-		.bus_read = BME280_I2C_bus_read,
-		.dev_addr = BME280_PHY_ADDRESS,
-		.delay_msec = BME280_delay_msek
-	};
-
-	s32 com_rslt;
-	s32 v_uncomp_pressure_s32;
-	s32 v_uncomp_temperature_s32;
-	s32 v_uncomp_humidity_s32;
-
-	com_rslt = bme280_init(&bme280);
-
-	com_rslt += bme280_set_oversamp_pressure(BME280_OVERSAMP_1X);
-	com_rslt += bme280_set_oversamp_temperature(BME280_OVERSAMP_1X);
-	com_rslt += bme280_set_oversamp_humidity(BME280_OVERSAMP_1X);
-
-	com_rslt += bme280_set_filter(BME280_FILTER_COEFF_OFF);
-	if (com_rslt == SUCCESS) {
-		while(true) {    
-			com_rslt = bme280_get_forced_uncomp_pressure_temperature_humidity(
-				&v_uncomp_pressure_s32, &v_uncomp_temperature_s32, &v_uncomp_humidity_s32);
-
-			if (com_rslt == SUCCESS) {
-      /*DOPLNENY ODHAD NADM. VYSKY, PREPOCET TLAKU NA HLADINU MORA, VZORCE Z: http://volthauslab.com/datasheets/Arduino/Libraries/Adafruit_BMP085/Adafruit_BMP085.cpp
-      2020-MAY-04, MCH*/ 
-      altitude = 44330 * (1.0 - pow(bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100 / 1013.25, 0.1903));
-      pressure_sea = (bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100) / pow(1 - ((0.0065 * altitude) / (bme280_compensate_temperature_double(v_uncomp_temperature_s32) + (0.0065 * altitude) + 273.15)), 5.257);
-      pressure_raw = bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100;
-      temp_bme = bme280_compensate_temperature_double(v_uncomp_temperature_s32);
-      humidity_bme = bme280_compensate_humidity_double(v_uncomp_humidity_s32);
-      ESP_LOGI(TAG_BME280, "%.2f degC / %.3f hPa / %.3f %% / %.3f m / %.3f hPa",
-			bme280_compensate_temperature_double(v_uncomp_temperature_s32),
-			bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100, // Pa -> hPa
-			bme280_compensate_humidity_double(v_uncomp_humidity_s32),
-      altitude,
-      pressure_sea);
-       char buf[512];
-    int ret, flags, len;
-    int cpu_temp = temprature_sens_read();
-    int hall_value = hall_sens_read();
- // DEPRECATED
-  /*  wifi_ap_record_t ap_info[100];
-    memset(ap_info, 0, sizeof(ap_info));
-    int8_t rssi_value = ap_info->rssi;
-    printf("A = %" PRIi8,rssi_value);  */
-    char REQUEST [1000];
-    char values [250];
-    //double altitude;
-    //double pressure_raw;
-    //double pressure_sea;
-    //double temp_bme;
-    //double humidity_bme;
-    sprintf (values, "temp_cpu=%d&hall_cpu=%d&altitude=%.2f&pressure_raw=%.2f&pressure_sea=%.2f&temp_bme=%.2f&humidity_bme=%.2f", cpu_temp, hall_value, altitude, pressure_raw, pressure_sea, temp_bme, humidity_bme);
-    sprintf (REQUEST, "POST https://esp32.sk/esp32/zapisdata.php HTTP/1.0\r\nHost: "WEB_SERVER"\r\nUser-Agent: ESP32\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length:%d\r\n\r\n%s\r\n",strlen(values),values);
-    mbedtls_entropy_context entropy;
-    mbedtls_ctr_drbg_context ctr_drbg;
-    mbedtls_ssl_context ssl;
-    mbedtls_x509_crt cacert;
-    mbedtls_ssl_config conf;
-    mbedtls_net_context server_fd;
-
-    mbedtls_ssl_init(&ssl);
-    mbedtls_x509_crt_init(&cacert);
-    mbedtls_ctr_drbg_init(&ctr_drbg);
-    ESP_LOGI(TAG2, "Seeding the random number generator");
-
-    mbedtls_ssl_config_init(&conf);
-
-    mbedtls_entropy_init(&entropy);
-    if((ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy,
-                                    NULL, 0)) != 0)
-    {
-        ESP_LOGE(TAG2, "mbedtls_ctr_drbg_seed returned %d", ret);
-        abort();
-    }
-
-    ESP_LOGI(TAG2, "Loading the CA root certificate...");
-
-    ret = mbedtls_x509_crt_parse(&cacert, server_cert_pem_start,
-                                 server_cert_pem_end-server_cert_pem_start);
-
-    if(ret < 0)
-    {
-        ESP_LOGE(TAG2, "mbedtls_x509_crt_parse returned -0x%x\n\n", -ret);
-        abort();
-    }
-
-    ESP_LOGI(TAG2, "Setting hostname for TLS session...");
-
-     /* Hostname set here should match CN in server certificate */
-    if((ret = mbedtls_ssl_set_hostname(&ssl, WEB_SERVER)) != 0)
-    {
-        ESP_LOGE(TAG2, "mbedtls_ssl_set_hostname returned -0x%x", -ret);
-        abort();
-    }
-
-    ESP_LOGI(TAG2, "Setting up the SSL/TLS structure...");
-
-    if((ret = mbedtls_ssl_config_defaults(&conf,
-                                          MBEDTLS_SSL_IS_CLIENT,
-                                          MBEDTLS_SSL_TRANSPORT_STREAM,
-                                          MBEDTLS_SSL_PRESET_DEFAULT)) != 0)
-    {
-        ESP_LOGE(TAG2, "mbedtls_ssl_config_defaults returned %d", ret);
-        goto exit;
-    }
-
-    /* MBEDTLS_SSL_VERIFY_OPTIONAL is bad for security, in this example it will print
-       a warning if CA verification fails but it will continue to connect.
-       You should consider using MBEDTLS_SSL_VERIFY_REQUIRED in your own code.
-    */
-    mbedtls_ssl_conf_authmode(&conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
-    mbedtls_ssl_conf_ca_chain(&conf, &cacert, NULL);
-    mbedtls_ssl_conf_rng(&conf, mbedtls_ctr_drbg_random, &ctr_drbg);
-#ifdef CONFIG_MBEDTLS_DEBUG
-    mbedtls_esp_enable_debug_log(&conf, CONFIG_MBEDTLS_DEBUG_LEVEL);
-#endif
-
-    if ((ret = mbedtls_ssl_setup(&ssl, &conf)) != 0)
-    {
-        ESP_LOGE(TAG2, "mbedtls_ssl_setup returned -0x%x\n\n", -ret);
-        goto exit;
-    }
-
-    while(1) {
-        mbedtls_net_init(&server_fd);
-
-        ESP_LOGI(TAG2, "Connecting to %s:%s...", WEB_SERVER, WEB_PORT);
-
-        if ((ret = mbedtls_net_connect(&server_fd, WEB_SERVER,
-                                      WEB_PORT, MBEDTLS_NET_PROTO_TCP)) != 0)
-        {
-            ESP_LOGE(TAG2, "mbedtls_net_connect returned -%x", -ret);
-            goto exit;
-        }
-
-        ESP_LOGI(TAG2, "Connected.");
-        mbedtls_ssl_set_bio(&ssl, &server_fd, mbedtls_net_send, mbedtls_net_recv, NULL);
-
-        ESP_LOGI(TAG2, "Performing the SSL/TLS handshake...");
-
-        while ((ret = mbedtls_ssl_handshake(&ssl)) != 0)
-        {
-            if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE)
-            {
-                ESP_LOGE(TAG2, "mbedtls_ssl_handshake returned -0x%x", -ret);
-                goto exit;
-            }
-        }
-
-        ESP_LOGI(TAG2, "Verifying peer X.509 certificate...");
-
-        if ((flags = mbedtls_ssl_get_verify_result(&ssl)) != 0)
-        {
-            /* In real life, we probably want to close connection if ret != 0 */
-            ESP_LOGW(TAG2, "Failed to verify peer certificate!");
-            bzero(buf, sizeof(buf));
-            mbedtls_x509_crt_verify_info(buf, sizeof(buf), "  ! ", flags);
-            ESP_LOGW(TAG2, "verification info: %s", buf);
-        }
-        else {
-            ESP_LOGI(TAG2, "Certificate verified.");
-        }
-
-        ESP_LOGI(TAG2, "Cipher suite is %s", mbedtls_ssl_get_ciphersuite(&ssl));
-
-        ESP_LOGI(TAG2, "Writing HTTP request...");
-
-        size_t written_bytes = 0;
-        do {
-            ret = mbedtls_ssl_write(&ssl,
-                                    (const unsigned char *)REQUEST + written_bytes,
-                                    strlen(REQUEST) - written_bytes);
-            if (ret >= 0) {
-                ESP_LOGI(TAG2, "%d bytes written", ret);
-                written_bytes += ret;
-            } else if (ret != MBEDTLS_ERR_SSL_WANT_WRITE && ret != MBEDTLS_ERR_SSL_WANT_READ) {
-                ESP_LOGE(TAG2, "mbedtls_ssl_write returned -0x%x", -ret);
-                goto exit;
-            }
-        } while(written_bytes < strlen(REQUEST));
-
-        ESP_LOGI(TAG2, "Reading HTTP response...");
-
-        do
-        {
-            len = sizeof(buf) - 1;
-            bzero(buf, sizeof(buf));
-            ret = mbedtls_ssl_read(&ssl, (unsigned char *)buf, len);
-
-            if(ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE)
-                continue;
-
-            if(ret == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY) {
-                ret = 0;
-                break;
-            }
-
-            if(ret < 0)
-            {
-                ESP_LOGE(TAG2, "mbedtls_ssl_read returned -0x%x", -ret);
-                break;
-            }
-                char* automat = "Automat";
-                if(strcmp (automat,buf)==0){
-                  ESP_LOGI(TAG3, "Automaticky rezim inteligentneho rele");
-                }
-            if(ret == 0)
-            {
-                ESP_LOGI(TAG2, "connection closed");
-                break;
-            }
-
-            len = ret;
-            ESP_LOGD(TAG2, "%d bytes read", len);
-            /* Print response directly to stdout as it is read */
-            for(int i = 0; i < len; i++) {
-                putchar(buf[i]);
-            }
-        } while(1);
-
-        mbedtls_ssl_close_notify(&ssl);
-
-    exit:
-        mbedtls_ssl_session_reset(&ssl);
-        mbedtls_net_free(&server_fd);
-
-        if(ret != 0)
-        {
-            mbedtls_strerror(ret, buf, 100);
-            ESP_LOGE(TAG2, "Last error was: -0x%x - %s", -ret, buf);
-        }
-
-        putchar('\n'); // JSON output doesn't have a newline at end
-
-        static int request_count;
-        ESP_LOGI(TAG2, "Completed %d requests", ++request_count);
-
-        for(int countdown = 10; countdown >= 0; countdown--) {
-            ESP_LOGI(TAG2, "%d...", countdown);
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-        }
-        ESP_LOGI(TAG2, "Starting again!");
-    } 
-      break;
-			} else {
-				ESP_LOGE(TAG_BME280, "measure error. code: %d", com_rslt);
-			}
-		}
-	} else {
-		ESP_LOGE(TAG_BME280, "init or setting error. code: %d", com_rslt);
-	}
-#endif  
    
 }
 
@@ -1344,6 +1030,115 @@ static void https_get_task3(void *pvParameters)
         ESP_LOGI(TAG4, "Starting again!");
     }
 }
+
+void task_bme280_normal_mode(void *ignore)
+{                 
+	struct bme280_t bme280 = {
+		.bus_write = BME280_I2C_bus_write,
+		.bus_read = BME280_I2C_bus_read,
+		.dev_addr = BME280_PHY_ADDRESS,
+		.delay_msec = BME280_delay_msek
+	};
+
+	s32 com_rslt;
+	s32 v_uncomp_pressure_s32;
+	s32 v_uncomp_temperature_s32;
+	s32 v_uncomp_humidity_s32;
+
+	com_rslt = bme280_init(&bme280);
+
+	com_rslt += bme280_set_oversamp_pressure(BME280_OVERSAMP_16X);
+	com_rslt += bme280_set_oversamp_temperature(BME280_OVERSAMP_2X);
+	com_rslt += bme280_set_oversamp_humidity(BME280_OVERSAMP_1X);
+
+	com_rslt += bme280_set_standby_durn(BME280_STANDBY_TIME_1_MS);
+	com_rslt += bme280_set_filter(BME280_FILTER_COEFF_16);
+
+	com_rslt += bme280_set_power_mode(BME280_NORMAL_MODE);
+	if (com_rslt == SUCCESS) {
+		while(true) {
+			vTaskDelay(40/portTICK_PERIOD_MS);
+
+			com_rslt = bme280_read_uncomp_pressure_temperature_humidity(
+				&v_uncomp_pressure_s32, &v_uncomp_temperature_s32, &v_uncomp_humidity_s32);
+
+			if (com_rslt == SUCCESS) {
+      /*DOPLNENY ODHAD NADM. VYSKY, PREPOCET TLAKU NA HLADINU MORA, VZORCE Z: http://volthauslab.com/datasheets/Arduino/Libraries/Adafruit_BMP085/Adafruit_BMP085.cpp
+      2020-MAY-04, MCH*/ 
+      altitude = 44330 * (1.0 - pow(bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100 / 1013.25, 0.1903));
+      pressure_sea = (bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100) / pow(1 - ((0.0065 * altitude) / (bme280_compensate_temperature_double(v_uncomp_temperature_s32) + (0.0065 * altitude) + 273.15)), 5.257);
+      pressure_raw = bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100;
+      temp_bme = bme280_compensate_temperature_double(v_uncomp_temperature_s32);
+      humidity_bme = bme280_compensate_humidity_double(v_uncomp_humidity_s32);
+      ESP_LOGI(TAG_BME280, "%.2f degC / %.3f hPa / %.3f %% / %.3f m / %.3f hPa",
+			bme280_compensate_temperature_double(v_uncomp_temperature_s32),
+			bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100, // Pa -> hPa
+			bme280_compensate_humidity_double(v_uncomp_humidity_s32),
+      altitude,
+      pressure_sea); 
+      vTaskDelay(5000/portTICK_PERIOD_MS);  	         
+			} else {
+				ESP_LOGE(TAG_BME280, "measure error. code: %d", com_rslt);
+			}
+		}
+	} else {
+		ESP_LOGE(TAG_BME280, "init or setting error. code: %d", com_rslt);
+	}
+
+	vTaskDelete(NULL);
+}
+
+void task_bme280_forced_mode(void *ignore) {
+	struct bme280_t bme280 = {
+		.bus_write = BME280_I2C_bus_write,
+		.bus_read = BME280_I2C_bus_read,
+		.dev_addr = BME280_PHY_ADDRESS,
+		.delay_msec = BME280_delay_msek
+	};
+
+	s32 com_rslt;
+	s32 v_uncomp_pressure_s32;
+	s32 v_uncomp_temperature_s32;
+	s32 v_uncomp_humidity_s32;
+
+	com_rslt = bme280_init(&bme280);
+
+	com_rslt += bme280_set_oversamp_pressure(BME280_OVERSAMP_1X);
+	com_rslt += bme280_set_oversamp_temperature(BME280_OVERSAMP_1X);
+	com_rslt += bme280_set_oversamp_humidity(BME280_OVERSAMP_1X);
+
+	com_rslt += bme280_set_filter(BME280_FILTER_COEFF_OFF);
+	if (com_rslt == SUCCESS) {
+		while(true) {
+			com_rslt = bme280_get_forced_uncomp_pressure_temperature_humidity(
+				&v_uncomp_pressure_s32, &v_uncomp_temperature_s32, &v_uncomp_humidity_s32);
+
+			if (com_rslt == SUCCESS) {
+      /*DOPLNENY ODHAD NADM. VYSKY, PREPOCET TLAKU NA HLADINU MORA, VZORCE Z: http://volthauslab.com/datasheets/Arduino/Libraries/Adafruit_BMP085/Adafruit_BMP085.cpp
+      2020-MAY-04, MCH*/ 
+ altitude = 44330 * (1.0 - pow(bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100 / 1013.25, 0.1903));
+      pressure_sea = (bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100) / pow(1 - ((0.0065 * altitude) / (bme280_compensate_temperature_double(v_uncomp_temperature_s32) + (0.0065 * altitude) + 273.15)), 5.257);
+      pressure_raw = bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100;
+      temp_bme = bme280_compensate_temperature_double(v_uncomp_temperature_s32);
+      humidity_bme = bme280_compensate_humidity_double(v_uncomp_humidity_s32);
+      ESP_LOGI(TAG_BME280, "%.2f degC / %.3f hPa / %.3f %% / %.3f m / %.3f hPa",
+			bme280_compensate_temperature_double(v_uncomp_temperature_s32),
+			bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100, // Pa -> hPa
+			bme280_compensate_humidity_double(v_uncomp_humidity_s32),
+      altitude,
+      pressure_sea);
+      vTaskDelay(5000/portTICK_PERIOD_MS);  	 
+			} else {
+				ESP_LOGE(TAG_BME280, "measure error. code: %d", com_rslt);
+			}
+		}
+	} else {
+		ESP_LOGE(TAG_BME280, "init or setting error. code: %d", com_rslt);
+	}
+
+	vTaskDelete(NULL);
+}
+
 void app_main()
 {    
     gpio_pad_select_gpio(GPIO_OUTPUT_IO_23);
@@ -1407,7 +1202,19 @@ void app_main()
      * examples/protocols/README.md for more information about this function.
      */
     ESP_ERROR_CHECK(example_connect());
- 
+    /*TASKY A ICH PODMIENENY VYBER NA ZAKLADE HODNOTY DEFINOVANEHO MAKRA
+2020-MAY-04, MCH */ 
+
+//NORMAL MODE
+#if defined CONFIG_BME280_OPMODE && CONFIG_BME280_OPMODE == 0x03
+  xTaskCreate(&task_bme280_normal_mode, "bme280_normal_mode",  2048, NULL, 6, NULL);
+#endif  
+
+
+//FORCED MODE
+#if defined CONFIG_BME280_OPMODE && CONFIG_BME280_OPMODE == 0x01
+  xTaskCreate(&task_bme280_forced_mode, "bme280_forced_mode",  2048, NULL, 6, NULL);	
+#endif  
     xTaskCreate(&ota_example_task, "ota_example_task", 8192, NULL, 5, NULL);
     xTaskCreate(&https_get_task, "https_get_task", 8192, NULL, 4, NULL);
     xTaskCreate(&https_get_task2, "https_get_task2", 8192, NULL, 3, NULL);
