@@ -1,5 +1,7 @@
 # ESP-IDF-OTA 
 * **Project: native_ota_example**
+* **Version: 9**
+* **Firmware host:** https://esp32.sk/firmware.bin
 
 **Príkazy eFuses:**
 * **Prehľad eFuses:** espefuse.py summary
@@ -18,4 +20,3 @@
 ![Security features](https://i.imgur.com/tQZJ5ZS.png)
 ![Partition Table](https://i.imgur.com/6jPF817.png)
 ![Example configuration](https://i.imgur.com/VdNexRi.png)
-
