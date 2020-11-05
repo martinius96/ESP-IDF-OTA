@@ -60,4 +60,5 @@
 * Vypáliť 256-bit šifrovací kľúč do eFuse BLK2 --> secure-bootloader-key-256.bin a permanentne zapnúť Secure Boot vypálením 1-bit eFuse ABS_DONE_0
 * Zapísať digest na offset 0x0 --> bootloader-digest.bin
 * Presunút privátny kľúč private.pem do zložky /build, podpísať binárku (mala by sa podpisovať aj tabuľka partícii, avšak žiaden mechanizmus neoveruje jej podpis)
+* Pripojiť senzor BME280 na HW I2C vývody. 
 * Nahrať projekt do ESP32
