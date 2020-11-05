@@ -36,7 +36,7 @@
 |<img src="https://i.imgur.com/n35LHkM.png" width="64" height="64">|0x76|4-pin verzia, štandardne I2C adresa 0x76, obsahuje pulldown na SDO vývod. Tento modul používaný v projekte. Zmena adresy možná iba prepojkou na PCB. (SDO vývod mení LSB I2C adresy)|
 |<img src="https://i.imgur.com/TgIF8H6.png" width="64" height="64">|0x76/0x77 (podľa zapojenia)|6-pin verzia, štandardne I2C adresa 0x76, možno ľahkou prepojkou (pullup) na SDO prepojiť na 0x77|
 
-# Zapojenie
+# Zapojenie (Preddefinované v príslušnom menuconfigu)
 |ESP32|BME280|
 |-------------|-------------|
 |3V3|Vcc|
