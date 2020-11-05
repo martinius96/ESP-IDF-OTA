@@ -15,8 +15,7 @@
 #include <inttypes.h> // for the macros
 #include <stdint.h>
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/semphr.h"
+#include "freertos/task.h"  
 #include "esp_system.h"
 #include "esp_event.h"
 #include "esp_event_loop.h"
@@ -123,8 +122,6 @@ double pressure_sea;
 double temp_bme;
 double humidity_bme;
 
-//Semafor handler
-SemaphoreHandle_t xSemaphore = NULL;
 void i2c_master_init()
 {
 	i2c_config_t i2c_config = {
@@ -468,11 +465,8 @@ void https_get_task(void *pvParameters)
         goto exit;
     }
 
-    while(1) {
-    if(xSemaphoreTake(xSemaphore, portMAX_DELAY)){
-    
-    ///SEMAPHORE HANDLER - 4. NOV. 2020 . MCH, FUNGUJE PRISTUP KU GLOBALNEJ PREMENNEJ
-    int cpu_temp = temprature_sens_read();
+    while(1) {    
+        int cpu_temp = temprature_sens_read();
     int hall_value = hall_sens_read();
  // DEPRECATED
   /*  wifi_ap_record_t ap_info[100];
@@ -481,7 +475,11 @@ void https_get_task(void *pvParameters)
     printf("A = %" PRIi8,rssi_value);  */
     char REQUEST [1000];
     char values [250];
-
+    //double altitude;
+    //double pressure_raw;
+    //double pressure_sea;
+    //double temp_bme;
+    //double humidity_bme;
     printf("////////////////////////////////////////////\n");
     printf("Pointer HTTPS_GET_TASK: %p\n", &altitude);
     printf("////////////////////////////////////////////\n");
@@ -606,7 +604,6 @@ void https_get_task(void *pvParameters)
             vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
         ESP_LOGI(TAG2, "Starting again!");
-    }
     }
    
 }
@@ -1086,8 +1083,7 @@ void task_bme280_normal_mode(void *ignore)
 			bme280_compensate_humidity_double(v_uncomp_humidity_s32),
       altitude,
       pressure_sea); 
-      xSemaphoreGive(xSemaphore);
-      ///SEMAPHORE GIVE - 4. NOV. 2020 . MCH, PO OBSLUHE PREMENNYCH UVOLNIT
+         
       vTaskDelay(5000/portTICK_PERIOD_MS);  	         
 			} else {
 				ESP_LOGE(TAG_BME280, "measure error. code: %d", com_rslt);
@@ -1138,9 +1134,7 @@ void task_bme280_forced_mode(void *ignore) {
 			bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100, // Pa -> hPa
 			bme280_compensate_humidity_double(v_uncomp_humidity_s32),
       altitude,
-      pressure_sea);
-      xSemaphoreGive(xSemaphore);
-      ///SEMAPHORE GIVE - 4. NOV. 2020 . MCH, PO OBSLUHE PREMENNYCH UVOLNIT
+      pressure_sea);      
       vTaskDelay(5000/portTICK_PERIOD_MS);  	 
 			} else {
 				ESP_LOGE(TAG_BME280, "measure error. code: %d", com_rslt);
@@ -1155,7 +1149,6 @@ void task_bme280_forced_mode(void *ignore) {
 
 void app_main()
 {    
-    xSemaphore = xSemaphoreCreateBinary();
     gpio_pad_select_gpio(GPIO_OUTPUT_IO_23);
     /* Set the GPIO as a push/pull output */
     gpio_set_direction(GPIO_OUTPUT_IO_23, GPIO_MODE_OUTPUT);

@@ -59,7 +59,6 @@
 #ifndef __BME280_H__
 #define __BME280_H__
 
-
 /*!
 * @brief The following definition uses for define the data types
 *
@@ -88,7 +87,11 @@ typedef	u_int16_t u16;/**< used for unsigned 16bit */
 typedef	u_int32_t u32;/**< used for unsigned 32bit */
 typedef	u_int64_t u64;/**< used for unsigned 64bit */
 
-
+extern double altitude;
+extern double pressure_raw;
+extern double pressure_sea;
+extern double temp_bme;
+extern double humidity_bme;
 
 #else /* ! __KERNEL__ */
 /**********************************************************
