@@ -34,7 +34,7 @@
 
 # Spustenie projektu na "čistej" ESP32 platforme
 * Menuconfig je vopred nastavený, nutné prepísať v Example Configuration SSID, heslo
-* Vytvoriť build projektu - idf.py build
+* Vytvoriť build projektu - idf.py build **(AK HLÁSI PROBLÉM BOOTLOADER S VEREJNÝM KĽÚČOM -->Verejný kľúč musí byť premiestnený do zložky komponentu Bootloadera → zložka ESP-IDF/components/bootloader/subproject. Bez tejto zmeny nie je možné skompilovať aplikáciu - vyhotoviť build.)**
 * Vypáliť 256-bit šifrovací kľúč do eFuse BLK2 --> secure-bootloader-key-256.bin a permanentne zapnúť Secure Boot vypálením 1-bit eFuse ABS_DONE_0
 * Zapísať digest na offset 0x0 --> bootloader-digest.bin
 * Presunút privátny kľúč private.pem do zložky /build, podpísať binárku
