@@ -1,7 +1,8 @@
 # ESP-IDF-OTA 
 * **Project: native_ota_example**
 * **Version: 9**
-* **Firmware host:** https://esp32.sk/firmware.bin
+* **OTA firmware host:** https://esp32.sk/firmware.bin
+* **OTA firmware host version: 9**
 
 **Príkazy eFuses:**
 * **Prehľad eFuses:** espefuse.py summary
@@ -20,3 +21,12 @@
 ![Security features](https://i.imgur.com/tQZJ5ZS.png)
 ![Partition Table](https://i.imgur.com/6jPF817.png)
 ![Example configuration](https://i.imgur.com/VdNexRi.png)
+
+# Tasky projektu
+
+
+# Spustenie projektu na "čistej" ESP32 platforme
+* Menuconfig je vopred nastavený, nutné prepísať v Example Configuration SSID, heslo
+* Vytvoriť build projektu - idf.py build
+* Vypáliť 256-bit šifrovací kľúč do eFuse BLK2 --> secure-bootloader-key-256.bin
+* Zapísať digest na offset 0x0 --> bootloader-digest.bin
