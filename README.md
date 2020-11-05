@@ -24,7 +24,7 @@
 # Najdôležitejšie partície - tabuľka partícii (.csv)
 |Partícia|Začiatok zápisu (offset)|Veľkosť|Popis|
 |-------------|-------------|-------------|-------------|
-|FACTORY|0x20000|1MB|Hlavná aplikácia|
+|FACTORY|0x20000|1MB|Hlavná aplikácia (nahratá cez USB-UART)|
 |OTA_0|0x120000|1MB|Aktualizovaný firmvér 1|
 |OTA_1|0x220000|1MB|Aktualizovaný firmvér 2|
 |OTA_DATA|0x15000|2kB|Boot príznak pre bootloader na dostupnej partícii|
