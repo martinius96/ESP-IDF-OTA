@@ -83,8 +83,8 @@ uint32_t hall_sens_read();
 #endif  
 
 
-static const char *TAG = "native_ota";
-static const char *TAG2 = "https_request_send_datas";
+static const char *TAG = "native_ota"; //TAG pre OTA task
+static const char *TAG2 = "https_request_send_datas"; //TAG pre HTTPS POST task - prenos dát
 static const char *TAG3 = "https_request_read_ZAP_VYP";
 static const char *TAG4 = "https_request_read_reset";
 static const char *TAG5 = "https_request_make_reset";
@@ -115,7 +115,7 @@ static char ota_write_data[BUFFSIZE + 1] = { 0 };
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
-//PREMENNÉ SPOLOČNÉ PRE OBA OPERAČNÉ MÓDY
+//PREMENNÉ SPOLOČNÉ PRE OBA OPERAČNÉ MÓDY BME280 (ulozenie premennych)
 double altitude;
 double pressure_raw;
 double pressure_sea;
@@ -466,23 +466,20 @@ void https_get_task(void *pvParameters)
     }
 
     while(1) {    
-        int cpu_temp = temprature_sens_read();
+    //3. Nov 2020 -MCH - Presunutie bloku meraní a vyskladania requestu do nekonečnej slučky tasku
+    int cpu_temp = temprature_sens_read();
     int hall_value = hall_sens_read();
- // DEPRECATED
+   // DEPRECATED, ZISK RSSI
   /*  wifi_ap_record_t ap_info[100];
     memset(ap_info, 0, sizeof(ap_info));
     int8_t rssi_value = ap_info->rssi;
     printf("A = %" PRIi8,rssi_value);  */
     char REQUEST [1000];
     char values [250];
-    //double altitude;
-    //double pressure_raw;
-    //double pressure_sea;
-    //double temp_bme;
-    //double humidity_bme;
-    printf("////////////////////////////////////////////\n");
-    printf("Pointer HTTPS_GET_TASK: %p\n", &altitude);
-    printf("////////////////////////////////////////////\n");
+   //DEBUG:     
+   //printf("////////////////////////////////////////////\n");
+   //printf("Pointer HTTPS_GET_TASK: %p\n", &altitude);
+   //printf("////////////////////////////////////////////\n");
     sprintf (values, "temp_cpu=%d&hall_cpu=%d&altitude=%.2f&pressure_raw=%.2f&pressure_sea=%.2f&temp_bme=%.2f&humidity_bme=%.2f", cpu_temp, hall_value, altitude, pressure_raw, pressure_sea, temp_bme, humidity_bme);
     sprintf (REQUEST, "POST https://esp32.sk/esp32/zapisdata.php HTTP/1.0\r\nHost: "WEB_SERVER"\r\nUser-Agent: ESP32\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length:%d\r\n\r\n%s\r\n",strlen(values),values);
     
@@ -1069,9 +1066,10 @@ void task_bme280_normal_mode(void *ignore)
 			if (com_rslt == SUCCESS) {
       /*DOPLNENY ODHAD NADM. VYSKY, PREPOCET TLAKU NA HLADINU MORA, VZORCE Z: http://volthauslab.com/datasheets/Arduino/Libraries/Adafruit_BMP085/Adafruit_BMP085.cpp
       2020-MAY-04, MCH*/ 
-          printf("////////////////////////////////////////////\n");
-    printf("Pointer BME280_TASK: %p\n", &altitude);
-    printf("////////////////////////////////////////////\n");
+//DEBUG:     
+//printf("////////////////////////////////////////////\n");
+//printf("Pointer BME280_TASK: %p\n", &altitude);
+//printf("////////////////////////////////////////////\n");
       altitude = 44330 * (1.0 - pow(bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100 / 1013.25, 0.1903));
       pressure_sea = (bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100) / pow(1 - ((0.0065 * altitude) / (bme280_compensate_temperature_double(v_uncomp_temperature_s32) + (0.0065 * altitude) + 273.15)), 5.257);
       pressure_raw = bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100;
@@ -1082,8 +1080,7 @@ void task_bme280_normal_mode(void *ignore)
 			bme280_compensate_pressure_double(v_uncomp_pressure_s32)/100, // Pa -> hPa
 			bme280_compensate_humidity_double(v_uncomp_humidity_s32),
       altitude,
-      pressure_sea); 
-         
+      pressure_sea);          
       vTaskDelay(5000/portTICK_PERIOD_MS);  	         
 			} else {
 				ESP_LOGE(TAG_BME280, "measure error. code: %d", com_rslt);
@@ -1212,16 +1209,18 @@ void app_main()
     ESP_ERROR_CHECK(example_connect());
     /*TASKY A ICH PODMIENENY VYBER NA ZAKLADE HODNOTY DEFINOVANEHO MAKRA
 2020-MAY-04, MCH */ 
-             printf("////////////////////////////////////////////\n");
-    printf("Pointer MAIN: %p\n", &altitude);
-    printf("////////////////////////////////////////////\n");
-//NORMAL MODE
+  //DEBUG:    
+  //printf("////////////////////////////////////////////\n");
+  // printf("Pointer MAIN: %p\n", &altitude);
+  //printf("////////////////////////////////////////////\n");
+
+//DIREKTIVA PRE NORMAL MODE BME280 (CONFIG Z SDKCONFIG)
 #if defined CONFIG_BME280_OPMODE && CONFIG_BME280_OPMODE == 0x03
   xTaskCreate(&task_bme280_normal_mode, "bme280_normal_mode",  2048, NULL, 6, NULL);
 #endif  
 
 
-//FORCED MODE
+//DIREKTIVA PRE FORCED MODE BME280 (CONFIG Z SDKCONFIG)
 #if defined CONFIG_BME280_OPMODE && CONFIG_BME280_OPMODE == 0x01
   xTaskCreate(&task_bme280_forced_mode, "bme280_forced_mode",  2048, NULL, 6, NULL);	
 #endif  
