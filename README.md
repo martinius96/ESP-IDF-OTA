@@ -23,10 +23,19 @@
 ![Example configuration](https://i.imgur.com/VdNexRi.png)
 
 # Tasky projektu
-
+|Task|Funkcia|
+|-------------|-------------|
+|ota_example_task|Vykoná jednorázový HTTPS request a prevezme firmvér z umiestnenia https://esp32.sk/firmware.bin, zapíše ho do dostupnej OTA partície (aktuálne nebežiacej). Overenie digitálneho podpisu, prepis OTA_DATA argumentu a reboot rieši funkcia ON_UPDATE a následne Bootloader pri bootovaní|
+|https_get_task|Vykonáva pravidelný HTTPS POST request s dátami obsiahnutými v Body requestu.|
+|https_get_task2|Vykonáva pravidelný HTTPS GET request, načítava stav ZAP / VYP pre výstup - relé|
+|https_get_task3|Vykonáva pravidelný HTTPS GET request, načíta stav, keď načíta RST, vykoná softvérový reštart ESP|
+|bme280_normal_mode|Normálny režim pre BME280, tlak oversampling 16x, teplota oversampling 2x, vlhkosť oversampling 1x, FILTER COEFF 16, STANDBY 1MS |
+|bme280_forced_mode|Forced režim pre BME280, tlak oversampling 1x, teplota oversampling 1x, vlhkosť oversampling 1x, FILTER OFF |
 
 # Spustenie projektu na "čistej" ESP32 platforme
 * Menuconfig je vopred nastavený, nutné prepísať v Example Configuration SSID, heslo
 * Vytvoriť build projektu - idf.py build
-* Vypáliť 256-bit šifrovací kľúč do eFuse BLK2 --> secure-bootloader-key-256.bin
+* Vypáliť 256-bit šifrovací kľúč do eFuse BLK2 --> secure-bootloader-key-256.bin a permanentne zapnúť Secure Boot vypálením 1-bit eFuse ABS_DONE_0
 * Zapísať digest na offset 0x0 --> bootloader-digest.bin
+* Presunút privátny kľúč private.pem do zložky /build, podpísať binárku
+* Nahrať projekt do ESP32
