@@ -25,12 +25,12 @@
 # Tasky projektu
 |Task|Funkcia|
 |-------------|-------------|
-|ota_example_task|Vykoná jednorázový HTTPS request a prevezme firmvér z umiestnenia https://esp32.sk/firmware.bin, zapíše ho do dostupnej OTA partície (aktuálne nebežiacej). Overenie digitálneho podpisu, prepis OTA_DATA argumentu a reboot rieši funkcia ON_UPDATE a následne Bootloader pri bootovaní|
-|https_get_task|Vykonáva pravidelný HTTPS POST request s dátami obsiahnutými v Body requestu.|
-|https_get_task2|Vykonáva pravidelný HTTPS GET request, načítava stav ZAP / VYP pre výstup - relé|
-|https_get_task3|Vykonáva pravidelný HTTPS GET request, načíta stav, keď načíta RST, vykoná softvérový reštart ESP|
-|bme280_normal_mode|Normálny režim pre BME280, tlak oversampling 16x, teplota oversampling 2x, vlhkosť oversampling 1x, FILTER COEFF 16, STANDBY 1MS |
-|bme280_forced_mode|Forced režim pre BME280, tlak oversampling 1x, teplota oversampling 1x, vlhkosť oversampling 1x, FILTER OFF |
+|**ota_example_task**|Vykoná jednorázový HTTPS request a prevezme firmvér z umiestnenia https://esp32.sk/firmware.bin, zapíše ho do dostupnej OTA partície (aktuálne nebežiacej). Overenie digitálneho podpisu, prepis OTA_DATA argumentu a reboot rieši funkcia ON_UPDATE a následne Bootloader pri bootovaní|
+|**https_get_task**|Vykonáva pravidelný HTTPS POST request s dátami obsiahnutými v Body requestu.|
+|**https_get_task2**|Vykonáva pravidelný HTTPS GET request, načítava stav ZAP / VYP pre výstup - relé|
+|**https_get_task3**|Vykonáva pravidelný HTTPS GET request, načíta stav, keď načíta RST, vykoná softvérový reštart ESP|
+|**bme280_normal_mode**|Normálny režim pre BME280, tlak oversampling 16x, teplota oversampling 2x, vlhkosť oversampling 1x, FILTER COEFF 16, STANDBY 1MS |
+|**bme280_forced_mode**|Forced režim pre BME280, tlak oversampling 1x, teplota oversampling 1x, vlhkosť oversampling 1x, FILTER OFF |
 
 # Spustenie projektu na "čistej" ESP32 platforme
 * Menuconfig je vopred nastavený, nutné prepísať v Example Configuration SSID, heslo
