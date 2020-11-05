@@ -21,6 +21,15 @@
 ![Security features](https://i.imgur.com/tQZJ5ZS.png)
 ![Partition Table](https://i.imgur.com/6jPF817.png)
 ![Example configuration](https://i.imgur.com/VdNexRi.png)
+# Najdôležitejšie partície - tabuľka partícii (.csv)
+|Partícia|Začiatok zápisu (offset)|Veľkosť|Popis|
+|-------------|-------------|-------------|-------------|
+|FACTORY|0x20000|1MB|Hlavná aplikácia|
+|OTA_0|0x120000|1MB|Aktualizovaný firmvér 1|
+|OTA_1|0x220000|1MB|Aktualizovaný firmvér 2|
+|OTA_DATA|0x15000|2kB|Boot príznak pre bootloader na dostupnej partícii|
+
+
 # Verzie BME280
 |BME280|ADDRESS|POPIS|
 |-------------|-------------|-------------|
