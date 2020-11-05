@@ -33,7 +33,7 @@
 # Verzie BME280
 |BME280|ADDRESS|POPIS|
 |-------------|-------------|-------------|
-|<img src="https://i.imgur.com/n35LHkM.png" width="64" height="64">|0x76|4-pin verzia, štandardne I2C adresa 0x76, obsahuje pulldown na SDO vývod. Tento modul používaný v projekte. Zmena adresy možná iba prepojkou na PCB. (SDO vývod mení LSB I2C adresy)|
+|<img src="https://i.imgur.com/n35LHkM.png" width="64" height="64">|0x76|4-pin verzia, štandardne I2C adresa 0x76, obsahuje pulldown na SDO vývod. **Tento modul používaný v projekte.** Zmena adresy možná iba prepojkou na PCB. (SDO vývod mení LSB I2C adresy)|
 |<img src="https://i.imgur.com/TgIF8H6.png" width="64" height="64">|0x76/0x77 (podľa zapojenia)|6-pin verzia, štandardne I2C adresa 0x76, možno ľahkou prepojkou (pullup) na SDO prepojiť na 0x77|
 
 # Zapojenie (Preddefinované v príslušnom menuconfigu)
@@ -47,7 +47,7 @@
 # Tasky projektu
 |Task|Funkcia|
 |-------------|-------------|
-|**ota_example_task**|Vykoná jednorázový HTTPS request a prevezme firmvér z umiestnenia https://esp32.sk/firmware.bin, zapíše ho do dostupnej OTA partície (aktuálne nebežiacej). Overenie digitálneho podpisu, prepis OTA_DATA argumentu a reboot rieši funkcionalita mimo tasku - ON_UPDATE a následne Bootloader pri bootovaní. Následne výpis v nekonecnej slučke každé 2 sekundy o fyzickom reštarte dosky pre stiahnutie nového firmvéru.|
+|**ota_example_task**|Vykoná jednorázový HTTPS request a prevezme firmvér z umiestnenia https://esp32.sk/firmware.bin, zapíše ho do dostupnej OTA partície (aktuálne nebežiacej). Overenie digitálneho podpisu, prepis OTA_DATA argumentu a reboot rieši funkcionalita bežiaca na pozadí, nemá súvis s taskom - metóda ON_UPDATE overuje digitálny podpis pri prevzatí (ak je podpis overený, zmení sa aj OTA_DATA príznak a vykoná sa softvérový reštart) a následne Bootloader pri bootovaní. Pokračuje výpis v nekonecnej slučke každé 2 sekundy o fyzickom reštarte dosky pre stiahnutie nového firmvéru.|
 |**https_get_task**|Vykonáva pravidelný HTTPS POST request s dátami obsiahnutými v Body requestu. Vždy pri behu tasku sa dynamicky vyskladá request z nameraných údajov v BME tasku. Request každých 15 sekúnd.|
 |**https_get_task2**|Vykonáva pravidelný HTTPS GET request, načítava stav ZAP / VYP pre výstup - relé, aplikuje na GPIO23 (D23). Request každých 15 sekúnd.|
 |**https_get_task3**|Vykonáva pravidelný HTTPS GET request, načíta stav, keď načíta RST, vykoná softvérový reštart ESP, predtým opätovným HTTP requestom potvrdí reštart. Request každých 15 sekúnd.|
