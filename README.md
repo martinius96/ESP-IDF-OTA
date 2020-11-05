@@ -25,7 +25,7 @@
 |BME280|ADDRESS|POPIS|
 |-------------|-------------|-------------|
 |<img src="https://i.imgur.com/n35LHkM.png" width="64" height="64">|0x76|4-pin verzia, štandardne I2C adresa 0x76, obsahuje pulldown na SDO vývod. Tento modul používaný v projekte.|
-|<img src="https://i.imgur.com/TgIF8H6.png" width="64" height="64">|0x76/0x77 (podľa zapojenia)|6-pin verzia, štandardne I2C adresa 0x76, možno ľahkou prepojkou (pullup) prepojiť na 0x77|
+|<img src="https://i.imgur.com/TgIF8H6.png" width="64" height="64">|0x76/0x77 (podľa zapojenia)|6-pin verzia, štandardne I2C adresa 0x76, možno ľahkou prepojkou (pullup) na SDO prepojiť na 0x77|
 
 # Tasky projektu
 |Task|Funkcia|
