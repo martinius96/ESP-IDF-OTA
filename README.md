@@ -1,6 +1,6 @@
 # ESP-IDF-OTA 
 * **Project: native_ota_example**
-* **Version: 9**
+* **Version.txt: 9**
 * **OTA firmware host:** https://esp32.sk/firmware.bin
 * **OTA firmware host version: 9**
 
@@ -21,6 +21,11 @@
 ![Security features](https://i.imgur.com/tQZJ5ZS.png)
 ![Partition Table](https://i.imgur.com/6jPF817.png)
 ![Example configuration](https://i.imgur.com/VdNexRi.png)
+# Verzie BME280
+|BME280|ADDRESS|POPIS|
+|-------------|-------------|-------------|
+|<img src="https://i.imgur.com/n35LHkM.png" width="64" height="64">|0x76|4-pin verzia, štandardne I2C adresa 0x76, obsahuje pulldown na SDO vývod. Tento modul používaný v projekte.|
+|<img src="https://i.imgur.com/TgIF8H6.png" width="64" height="64">|0x76/0x77 (podľa zapojenia)|6-pin verzia, štandardne I2C adresa 0x76, možno ľahkou prepojkou (pullup) prepojiť na 0x77|
 
 # Tasky projektu
 |Task|Funkcia|
