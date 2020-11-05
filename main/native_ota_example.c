@@ -112,10 +112,12 @@ static const char *REQUEST4 = "GET " WEB_URL4 " HTTP/1.0\r\n"
 //static const char *TAG = "native_ota_example";
 /*an ota data write buffer ready to write to the flash*/
 static char ota_write_data[BUFFSIZE + 1] = { 0 };
+
+//ROOT CA CERT 
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
-//PREMENNÉ SPOLOČNÉ PRE OBA OPERAČNÉ MÓDY BME280 (ulozenie premennych)
+//PREMENNÉ SPOLOČNÉ PRE OBA OPERAČNÉ MÓDY BME280 (ulozenie premennych) - MCH - 5.NOV.2020
 double altitude;
 double pressure_raw;
 double pressure_sea;
@@ -467,15 +469,15 @@ void https_get_task(void *pvParameters)
 
     while(1) {    
     //3. Nov 2020 -MCH - Presunutie bloku meraní a vyskladania requestu do nekonečnej slučky tasku
-    int cpu_temp = temprature_sens_read();
-    int hall_value = hall_sens_read();
+    int cpu_temp = temprature_sens_read(); //DEPRECATED API pre teplotu CPU
+    int hall_value = hall_sens_read();     //DEPRECATED API pre hall sensor
    // DEPRECATED, ZISK RSSI
   /*  wifi_ap_record_t ap_info[100];
     memset(ap_info, 0, sizeof(ap_info));
     int8_t rssi_value = ap_info->rssi;
     printf("A = %" PRIi8,rssi_value);  */
-    char REQUEST [1000];
-    char values [250];
+    char REQUEST [1000]; //BUFFER PRE REQUEST (METODA, URL, HTTP VERSION, HOST, USER-AGENT Content-type atď)  - MCH - 5.NOV.2020
+    char values [250]; //hodnoty pre request - URL encoded
    //DEBUG:     
    //printf("////////////////////////////////////////////\n");
    //printf("Pointer HTTPS_GET_TASK: %p\n", &altitude);
@@ -766,12 +768,12 @@ static void https_get_task2(void *pvParameters)
             }
                 char* zapnutie = "ZAP";
                 char* vypnutie = "VYP";
-                if(strcmp (zapnutie,buf)==0){
+                if(strcmp (zapnutie,buf)==0){ //ROZHODOVANIE, NACITANIE STAVU V PAYLOADE
                   ESP_LOGI(TAG3, "Zapnutie rele ");
-                  gpio_set_level(GPIO_OUTPUT_IO_23, 1);
+                  gpio_set_level(GPIO_OUTPUT_IO_23, 1); //ZAPIS STAVU HIGH NA GPIO23 pre RELE
                 }else if(strcmp (vypnutie,buf)==0){
                   ESP_LOGI(TAG3, "Vypnutie rele ");
-                  gpio_set_level(GPIO_OUTPUT_IO_23, 0);
+                  gpio_set_level(GPIO_OUTPUT_IO_23, 0); //ZAPIS STAVU LOW NA GPIO23 pre RELE
                 }
             if(ret == 0)
             {
@@ -1146,10 +1148,10 @@ void task_bme280_forced_mode(void *ignore) {
 
 void app_main()
 {    
-    gpio_pad_select_gpio(GPIO_OUTPUT_IO_23);
+    gpio_pad_select_gpio(GPIO_OUTPUT_IO_23); //GPIO23
     /* Set the GPIO as a push/pull output */
-    gpio_set_direction(GPIO_OUTPUT_IO_23, GPIO_MODE_OUTPUT);
-    gpio_set_level(GPIO_OUTPUT_IO_23, 0); // pociatocne nastavenie 
+    gpio_set_direction(GPIO_OUTPUT_IO_23, GPIO_MODE_OUTPUT); //nastavenie direction na VYSTUP
+    gpio_set_level(GPIO_OUTPUT_IO_23, 0); // pociatocne nastavenie, RELE vypnute 
     uint8_t sha_256[HASH_LEN] = { 0 };
     esp_partition_t partition;
 
@@ -1199,7 +1201,7 @@ void app_main()
     ESP_ERROR_CHECK( err );
         //INICIALIZACIA PRE MASTER I2C - ESP32
     i2c_master_init();
-    tcpip_adapter_init();
+    tcpip_adapter_init(); //INICIALIZACIE WiFi adaptera - PRIPAJANIE NA WIFI
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
