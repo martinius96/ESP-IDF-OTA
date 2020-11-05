@@ -47,7 +47,7 @@
 # Tasky projektu
 |Task|Funkcia|
 |-------------|-------------|
-|**ota_example_task**|Vykoná jednorázový HTTPS request a prevezme firmvér z umiestnenia https://esp32.sk/firmware.bin, zapíše ho do dostupnej OTA partície (aktuálne nebežiacej). Overenie digitálneho podpisu, prepis OTA_DATA argumentu a reboot rieši funkcia ON_UPDATE a následne Bootloader pri bootovaní. Následne výpis v nekonecnej slučke každé 2 sekundy o fyzickom reštarte pre stiahnutie nového firmvéru.|
+|**ota_example_task**|Vykoná jednorázový HTTPS request a prevezme firmvér z umiestnenia https://esp32.sk/firmware.bin, zapíše ho do dostupnej OTA partície (aktuálne nebežiacej). Overenie digitálneho podpisu, prepis OTA_DATA argumentu a reboot rieši funkcionalita mimo tasku - ON_UPDATE a následne Bootloader pri bootovaní. Následne výpis v nekonecnej slučke každé 2 sekundy o fyzickom reštarte dosky pre stiahnutie nového firmvéru.|
 |**https_get_task**|Vykonáva pravidelný HTTPS POST request s dátami obsiahnutými v Body requestu. Vždy pri behu tasku sa dynamicky vyskladá request z nameraných údajov v BME tasku. Request každých 15 sekúnd.|
 |**https_get_task2**|Vykonáva pravidelný HTTPS GET request, načítava stav ZAP / VYP pre výstup - relé, aplikuje na GPIO23 (D23). Request každých 15 sekúnd.|
 |**https_get_task3**|Vykonáva pravidelný HTTPS GET request, načíta stav, keď načíta RST, vykoná softvérový reštart ESP, predtým opätovným HTTP requestom potvrdí reštart. Request každých 15 sekúnd.|
