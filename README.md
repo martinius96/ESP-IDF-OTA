@@ -13,7 +13,8 @@
 **Príkazy pre digest:**
 * **Generovanie digestu:** espsecure.py digest_secure_bootloader --keyfile secure-bootloader-key-256 --output ./bootloader-digest.bin build/bootloader/bootloader.bin
 * **Zápis digestu do flash pamäte na offset 0x0:** esptool.py write_flash 0x0 bootloader-digest.bin
-
+# 4.2 - podpis
+* espsecure.py sign_data --version 1 --keyfile private.pem --output native_ota.bin native_ota.bin
 **Príkazy pre dig. podpis:**
 * **Podpisanie binárky:** espsecure.py sign_data --keyfile private.pem native_ota.bin
 
