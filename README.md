@@ -65,3 +65,8 @@
 * Presunút privátny kľúč private.pem do zložky /build, podpísať binárku (mala by sa podpisovať aj tabuľka partícii, avšak žiaden mechanizmus neoveruje jej podpis)
 * Pripojiť senzor BME280 na HW I2C vývody. 
 * Nahrať projekt do ESP32
+
+
+
+# test prepisu eFuse
+![Prepis eFuse](https://i.imgur.com/lvg2Mwj.png)
