@@ -13,12 +13,9 @@
 **Príkazy pre digest:**
 * **Generovanie digestu:** espsecure.py digest_secure_bootloader --keyfile secure-bootloader-key-256 --output ./bootloader-digest.bin build/bootloader/bootloader.bin
 * **Zápis digestu do flash pamäte na offset 0x0:** esptool.py write_flash 0x0 bootloader-digest.bin
-#
-**Príkazy pre dig. podpisanie bin. firmveru - IDF v4.2:**
-* espsecure.py sign_data --version 1 --keyfile private.pem --output native_ota.bin native_ota.bin
-#
-~~**Príkazy pre dig. podpisanie bin. firmveru - IDF v4.0:**~~
-* ~~**Podpisanie binárky:** espsecure.py sign_data --keyfile private.pem native_ota.bin~~
+
+**Príkazy pre dig. podpis:**
+* **Podpisanie binárky:** espsecure.py sign_data --keyfile private.pem native_ota.bin
 
 # Menuconfig - konfigurácia
 ![Security features](https://i.imgur.com/tQZJ5ZS.png)
@@ -65,8 +62,3 @@
 * Presunút privátny kľúč private.pem do zložky /build, podpísať binárku (mala by sa podpisovať aj tabuľka partícii, avšak žiaden mechanizmus neoveruje jej podpis)
 * Pripojiť senzor BME280 na HW I2C vývody. 
 * Nahrať projekt do ESP32
-
-
-
-# test prepisu eFuse
-![Prepis eFuse](https://i.imgur.com/lvg2Mwj.png)
