@@ -28,7 +28,7 @@
 * espsecure.py sign_data --version 1 --keyfile private.pem --output app-encrypted.bin app-encrypted_ota.bin
 * espsecure.py sign_data --version 1 --keyfile private.pem --output partitions-encrypted.bin partitions-encrypted.bin
 * espsecure.py digest_secure_bootloader --keyfile secure-bootloader-key-256.bin --output ./build/secure_bootloader.bin ./build/bootloader/bootloader.bin
-* espsecure.py encrypt_flash_data --keyfile my_flash_encryption_key.bin --address 0x1000 -o ./build/digest-encrypted.bin ./build/secure_bootloader.bin
+* espsecure.py encrypt_flash_data --keyfile my_flash_encryption_key.bin --address 0x0 -o ./build/digest-encrypted.bin ./build/secure_bootloader.bin
 * esptool.py write_flash 0x0 ./build/digest-encrypted.bin
 * esptool.py write_flash 0x1000 ./build/bootloader-encrypted.bin
 * esptool.py write_flash 0x10000 ./build/partitions-encrypted.bin
