@@ -23,8 +23,8 @@
 
 **Príkazy pre Flash Encryption:**
 * espsecure.py encrypt_flash_data --keyfile my_flash_encryption_key.bin --address 0x1000 -o ./build/bootloader-encrypted.bin ./build/bootloader/bootloader.bin
-* espsecure.py encrypt_flash_data --keyfile my_flash_encryption_key.bin --address 0x20000 -o ./build/native_ota.bin ./build/native_ota.bin
-* espsecure.py encrypt_flash_data --keyfile my_flash_encryption_key.bin --address 0x10000 -o ./build/partitions-encrypted.bin ./build/partitions.bin
+* espsecure.py encrypt_flash_data --keyfile my_flash_encryption_key.bin --address 0x20000 -o ./build/app-encrypted.bin ./build/native_ota.bin
+* espsecure.py encrypt_flash_data --keyfile my_flash_encryption_key.bin --address 0x10000 -o ./build/partitions-encrypted.bin ./build/partition_table/partition-table.bin
 
 # Menuconfig - konfigurácia
 ![Security features](https://i.imgur.com/tQZJ5ZS.png)
