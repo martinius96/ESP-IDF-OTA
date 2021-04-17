@@ -21,10 +21,18 @@
 ~~**Príkazy pre dig. podpisanie bin. firmveru - IDF v4.0:**~~
 * ~~**Podpisanie binárky:** espsecure.py sign_data --keyfile private.pem native_ota.bin~~
 
-**Príkazy pre Flash Encryption:**
+**Príkazy pre Flash Encryption - postup cez UART nahravanie:**
 * espsecure.py encrypt_flash_data --keyfile my_flash_encryption_key.bin --address 0x1000 -o ./build/bootloader-encrypted.bin ./build/bootloader/bootloader.bin
 * espsecure.py encrypt_flash_data --keyfile my_flash_encryption_key.bin --address 0x20000 -o ./build/app-encrypted.bin ./build/native_ota.bin
 * espsecure.py encrypt_flash_data --keyfile my_flash_encryption_key.bin --address 0x10000 -o ./build/partitions-encrypted.bin ./build/partition_table/partition-table.bin
+* espsecure.py sign_data --version 1 --keyfile private.pem --output app-encrypted.bin app-encrypted_ota.bin
+* espsecure.py sign_data --version 1 --keyfile private.pem --output partitions-encrypted.bin partitions-encrypted.bin
+* espsecure.py digest_secure_bootloader --keyfile secure-bootloader-key-256.bin --output ./build/secure_bootloader.bin ./build/bootloader/bootloader.bin
+* espsecure.py encrypt_flash_data --keyfile my_flash_encryption_key.bin --address 0x1000 -o ./build/digest-encrypted.bin ./build/secure_bootloader.bin
+* esptool.py write_flash 0x0 ./build/digest-encrypted.bin
+* esptool.py write_flash 0x1000 ./build/bootloader-encrypted.bin
+* esptool.py write_flash 0x10000 ./build/partitions-encrypted.bin
+* esptool.py write_flash 0x20000 ./build/app-encrypted.bin
 
 # Menuconfig - konfigurácia
 ![Security features](https://i.imgur.com/tQZJ5ZS.png)
